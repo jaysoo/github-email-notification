@@ -3,7 +3,10 @@
 from bottle import run, post, request, HTTPResponse, HTTPError
 import smtplib
 from email.mime.text import MIMEText
-import simplejson as json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import sys
 
 from settings import *
