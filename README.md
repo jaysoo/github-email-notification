@@ -6,10 +6,12 @@ does a `git push` to the repo.
 
 For more details, please see GitHub's documentation on [Post-Receive Hooks](http://help.github.com/post-receive-hooks/).
 
-Requirement
------------
+Requirements
+------------
 
-Uses the [Bottle](http://bottlepy.org/docs/dev/) framework (0.10 or later).
+* Python 2.5 or later
+* [Bottle](http://bottlepy.org/docs/dev/) framework (built using 0.10 dev version).
+* simplejson (using Python 2.5)
 
 Configuration
 -------------
