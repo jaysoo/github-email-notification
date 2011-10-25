@@ -11,7 +11,7 @@ Requirements
 
 * Python 2.5 or later
 * [Bottle](http://bottlepy.org/docs/dev/) framework (built using 0.10 dev version).
-* simplejson (using Python 2.5)
+* simplejson (**if** using Python 2.5)
 
 Configuration
 -------------
@@ -48,9 +48,9 @@ To start the server, simply run the script!
 Setting up on GitHub
 --------------------
 
-In your repo's *Service Hooks* section, under admin, go to *Post-Receive URLs*.
+In your repo's **Service Hooks** section, under admin, go to **Post-Receive URLs**.
 
 Use the host and port that points to your deployed service (e.g. http://example.com:8000/) 
-and click *Update Settings*.
+and click **Update Settings**.
 
 You can test the service by clicking on *Test Hook*.
