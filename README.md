@@ -1,10 +1,15 @@
-Overview
---------
+GitHub Email Notification
+=========================
 
 This standalone server handles POST request from GitHub whenever someone 
 does a `git push` to the repo.
 
 For more details, please see GitHub's documentation on [Post-Receive Hooks](http://help.github.com/post-receive-hooks/).
+
+License
+-------
+
+This project is license under the MIT license. See `LICENSE.txt` for details.
 
 Requirements
 ------------
