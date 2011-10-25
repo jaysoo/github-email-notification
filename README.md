@@ -43,7 +43,7 @@ Running
 
 To start the server, simply run the script!
 
-	python server.py
+	./server.py
 
 Setting up on GitHub
 --------------------
@@ -53,4 +53,4 @@ In your repo's **Service Hooks** section, under admin, go to **Post-Receive URLs
 Use the host and port that points to your deployed service (e.g. http://example.com:8000/) 
 and click **Update Settings**.
 
-You can test the service by clicking on *Test Hook*.
+You can test the service by clicking on **Test Hook**.
