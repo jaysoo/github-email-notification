@@ -2,36 +2,74 @@
 # -*- coding: utf-8 -*-
 from bottle import run, post, request, HTTPResponse, HTTPError
 import smtplib
+import logging
+from logging.handlers import RotatingFileHandler
 from email.mime.text import MIMEText
 try:
     import json
 except ImportError:
     import simplejson as json
-import sys
-
-from settings import *
+import os, errno
+import traceback
+from settings import settings
 
 LINE = '==========================================================================='
+
+# Make logs directory if not exist
+try:
+    os.mkdir('logs')
+except OSError, err:
+    if err.errno == errno.EEXIST:
+        pass
+    else:
+        raise err
+
+_logger = logging.getLogger(__name__)
+_handler =  RotatingFileHandler('logs/application.log', mode='a', maxBytes=10000, backupCount=20)
+_handler.setFormatter( logging.Formatter('%(asctime)s ' + '%(levelname)s\t%(message)s') )
+_logger.addHandler(_handler)
+_logger.setLevel(logging.INFO)
 
 @post('/')
 def index(name='Email'):
     # Check whitelist
-    if not request.remote_addr in addr_whitelist:
+    ip = request.environ.get('REMOTE_ADDR')
+
+    if not ip in settings['addr_whitelist']:
+        _logger.info('Request attempted from IP not on whitelist: %s' % ip)
         return HTTPError(output='IP forbidden to make request', code=403)
 
-    payload = json.loads( request.forms.get('payload') )
+    form_payload = request.forms.get('payload')
 
-    email(payload)
+    if not form_payload:
+        return HTTPError(output='Payload not present', code=400)
+        
+    payload = None
+
+    _logger.info('Received payload: %s' % form_payload)
+
+    try:
+        payload = json.loads( form_payload )
+    except ValueError:
+        _logger.error('Error processing payload: %s' % form_payload)
+        return HTTPError(output='Payload could be decoded: %s' % form_payload, code=400)
+
+    try:
+        email(payload)
+    except:
+        _logger.error('Error sending out emails')
+        traceback.print_exc()
 
     return HTTPResponse(status=204)
 
 def email(payload):
     repo = payload['repository']
 
-    body = '''%d commits have just been pushed to %s!
+    num_commits = len( payload['commits'] )
+    body = '''%d commit%s just been pushed to %s!
 
 Branch: %s
-Home:   %s\n\n''' % ( len(payload['commits']), repo['name'], payload['ref'], repo['url'] )
+Home:   %s\n\n''' % ( num_commits, ' has' if num_commits == 1 else 's have', repo['name'], payload['ref'], repo['url'] )
 
     for commit in payload['commits']:
         author = commit['author']
@@ -67,16 +105,20 @@ Log Message:
     s = smtplib.SMTP('localhost')
 
 
-    for to in email_to:
+    for to in settings['email_to']:
         msg = MIMEText(body)
 
         msg['Subject'] = '[GitHub] - SciMart - %s - %s' % ( payload['after'][:7], payload['commits'][0]['message'] )
-        msg['From'] = email_from
+        msg['From'] = settings['email_from']
         msg['To'] = to
 
-        s.sendmail(email_from, [to], msg.as_string())
+        s.sendmail(settings['email_from'], [to], msg.as_string())
 
     s.quit()
 
-run(host=host, port=port)
+if __name__ == '__main__':
+    try:
+        run(host=settings['host'], port=settings['port'])
+    except:
+        raise
 
